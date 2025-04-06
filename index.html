@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestAI - GenAI-Powered Financial Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <!-- Add Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --dark-blue: #0b5ed7;
+            --light-blue: #e3f2fd;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --success: #4caf50;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-scrolled {padding: 5px 0; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);}
+        .navbar-brand {font-weight: 700; font-size: 1.8rem; color: var(--primary);}
+        
+        .nav-link {
+            font-weight: 500;
+            position: relative;
+            margin: 0 10px;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {width: 100%;}
+        
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before, .hero-section::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .hero-section::before {
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .hero-section::after {
+            bottom: -100px;
+            left: -100px;
+            width: 300px;
+            height: 300px;
+        }
+
+        img {
+            width: 500px;
+            height: 300px;
+        }
+        
+        .hero-content {position: relative; z-index: 1;}
+        
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--dark-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover .feature-icon {
+            background-color: var(--primary);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        .testimonial-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .testimonial-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+        }
+        
+        .quote-icon {
+            font-size: 50px;
+            color: var(--light-blue);
+            position: absolute;
+            opacity: 0.2;
+            top: 10px;
+            right: 20px;
+        }
+        
+        .rating {color: var(--warning);}
+        
+        .footer {background-color: var(--dark); color: white;}
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-links a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .dashboard-img {
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s ease;
+        }
+        
+        .dashboard-img:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pricing-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .pricing-card.popular {
+            transform: scale(1.05);
+            border: 2px solid var(--primary);
+            z-index: 1;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--primary);
+            color: white;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .pricing-icon {font-size: 40px; color: var(--primary); margin-bottom: 20px;}
+        .price {font-size: 40px; font-weight: 700; color: var(--dark); margin-bottom: 20px;}
+        .price span {font-size: 16px; color: #6c757d;}
+        
+        .feature-list {
+            text-align: left;
+            margin-bottom: 30px;
+            min-height: 180px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .feature-list li:before {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--success);
+        }
+        
+        .feature-list li.unavailable {
+            color: #6c757d;
+            text-decoration: line-through;
+        }
+        
+        .feature-list li.unavailable:before {
+            content: "\f00d";
+            color: var(--danger);
+        }
+        
+        .fade-in-left, .fade-in-right, .fade-in-up {animation-duration: 1s;}
+        @keyframes fadeInLeft {from {opacity: 0; transform: translateX(-50px);} to {opacity: 1; transform: translateX(0);}}
+        @keyframes fadeInRight {from {opacity: 0; transform: translateX(50px);} to {opacity: 1; transform: translateX(0);}}
+        @keyframes fadeInUp {from {opacity: 0; transform: translateY(30px);} to {opacity: 1; transform: translateY(0);}}
+        
+        .counter-section {
+            background: linear-gradient(135deg, #0b5ed7 0%, #0099ff 100%);
+            padding: 80px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .counter-section::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            top: -50px;
+            left: -50px;
+        }
+        
+        .counter-box {
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .counter-box:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .counter-icon {font-size: 40px; margin-bottom: 15px;}
+        .counter-number {font-size: 40px; font-weight: 700; margin-bottom: 0;}
+        
+        .cta-section {
+            position: relative;
+            background: white;
+            border-radius: 15px;
+            padding: 60px 0;
+            margin-top: -80px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        /* Gmail Integration Styles */
+        #gmail-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        #gmail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #email-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .email-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .email-item:hover {
+            background-color: var(--light-blue);
+        }
+
+        .email-subject {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .email-sender {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .email-snippet {
+            color: #777;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #gmail-auth-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        #gmail-loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .gmail-section {
+            padding: 80px 0;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Invest<span class="text-primary">AI</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#gmail-integration">Gmail</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="testimonials.html">Testimonials</a></li>
+                    <li class="nav-item"><a class="btn btn-primary ms-3" href="#start">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section py-5" style="margin-top: 70px; padding-top: 80px; padding-bottom: 100px;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInLeft">Make Smarter Investment Decisions with AI</h1>
+                    <p class="lead mb-4 animate__animated animate__fadeInLeft">Unlock powerful financial insights with our GenAI-powered assistant. Analyze markets, predict trends, and optimize your portfolio.</p>
+                    <div class="d-flex flex-wrap gap-3 animate__animated animate__fadeInUp">
+                        <a href="#start" class="btn btn-light btn-lg">Start Free Trial</a>
+                        <a href="#demo" class="btn btn-outline-light btn-lg">Watch Demo</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0 animate__animated animate__fadeInRight">
+                    <img src="logo.png" alt="AI Financial Dashboard" class="img-fluid rounded-3 dashboard-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="counter-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                    <div class="counter-box" data-aos="fade-up" data-aos-delay="100">
+                        <div class="counter-icon"><i class="fas fa-users"></i></div>
+                        <h2 class="counter-number">25K+</h2>
+                        <p>Active Users</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4 mb-md-0">
+                    <div class="counter-box" data-aos="fade-up" data-aos-delay="200">
+                        <div class="counter-icon"><i class="fas fa-chart-line"></i></div>
+                        <h2 class="counter-number">92%</h2>
+                        <p>Accuracy Rate</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="counter-box" data-aos="fade-up" data-aos-delay="300">
+                        <div class="counter-icon"><i class="fas fa-globe"></i></div>
+                        <h2 class="counter-number">100+</h2>
+                        <p>Markets Analyzed</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="counter-box" data-aos="fade-up" data-aos-delay="400">
+                        <div class="counter-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <h2 class="counter-number">$2.4B</h2>
+                        <p>Portfolio Value</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to transform your investment strategy?</h2>
+            <p class="lead mb-4">Start your 14-day free trial today. No credit card required.</p>
+            <a href="#start" class="btn btn-primary btn-lg px-5">Get Started Now</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">Powerful Features</h2>
+                <p class="lead text-muted">Our AI-powered tools give you unprecedented insights into market trends.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <h4>AI Market Analysis</h4>
+                        <p>Our advanced AI algorithms analyze market trends and patterns to provide predictive insights.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h4>Portfolio Optimization</h4>
+                        <p>Automatically diversify and rebalance your portfolio to maximize returns while managing risk.</p>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                        <h4>Real-time Alerts</h4>
+                        <p>Get instant notifications about market changes and investment opportunities.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="bg-light py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">How InvestAI Works</h2>
+                <p class="lead text-muted">Our platform leverages cutting-edge AI to deliver personalized investment insights.</p>
+            </div>
+            <div class="row align-items-center mb-5">
+                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                    <div class="image-wrapper">
+                    <img src="0x0.webp" alt="Connect your accounts" class="img-fluid rounded-3 dashboard-img">
+                </div>
+            </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="ps-lg-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 700;">1</div>
+                            <h3 class="fw-bold ms-3 mb-0">Connect Your Accounts</h3>
+                        </div>
+                        <p class="lead">Link your investment accounts securely to our platform. We support major brokerages and banks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-items-center mb-5 flex-lg-row-reverse">
+                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-left">
+                    <div class="image-wrapper">
+                    <img src="AI-based-content-analysis_22029aaddb-png.avif" alt="AI Analysis" class="img-fluid rounded-3 dashboard-img">
+                </div>
+            </div>
+                <div class="col-lg-6" data-aos="fade-right">
+                    <div class="pe-lg-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 700;">2</div>
+                            <h3 class="fw-bold ms-3 mb-0">AI Analyzes Your Portfolio</h3>
+                        </div>
+                        <p class="lead">Our advanced algorithms analyze your investments and market conditions to create recommendations.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0" data-aos="fade-right">
+                    <div class="image-wrapper">
+                    <img src="feedback-loop-concept-illustration_114360-21826.avif" alt="Get Recommendations" class="img-fluid rounded-3 dashboard-img">
+                </div>
+            </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="ps-lg-5">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; font-weight: 700;">3</div>
+                            <h3 class="fw-bold ms-3 mb-0">Make Informed Decisions</h3>
+                        </div>
+                        <p class="lead">Receive actionable insights and execute trades directly from our platform.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gmail Integration Section -->
+    <section id="gmail-integration" class="gmail-section py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">Gmail Integration</h2>
+                <p class="lead text-muted">Connect your Gmail account to receive financial updates and alerts directly in your inbox.</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div id="gmail-container">
+                        <div id="gmail-auth-container">
+                            <p class="mb-4">Connect your Gmail account to get started</p>
+                            <button id="authorize_button" class="btn btn-primary">
+                                <i class="fab fa-google me-2"></i> Sign in with Google
+                            </button>
+                            <button id="signout_button" class="btn btn-outline-danger d-none">
+                                Sign Out
+                            </button>
+                        </div>
+                        <div id="gmail-loading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3">Loading your emails...</p>
+                        </div>
+                        <div id="gmail-content" class="d-none">
+                            <div id="gmail-header">
+                                <h4 class="mb-0">Your Inbox</h4>
+                                <button id="compose-button" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-pen me-2"></i> Compose
+                                </button>
+                            </div>
+                            <div id="email-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-3">Simple, Transparent Pricing</h2>
+                <p class="lead text-muted">Choose the plan that fits your investment needs and goals.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="pricing-card">
+                        <div class="pricing-icon"><i class="fas fa-seedling"></i></div>
+                        <h3 class="mb-4">Starter</h3>
+                        <div class="price mb-4">$19<span>/month</span></div>
+                        <ul class="list-unstyled feature-list">
+                            <li>Basic AI market analysis</li>
+                            <li>Portfolio tracking</li>
+                            <li>Daily market insights</li>
+                            <li class="unavailable">Advanced risk analysis</li>
+                            <li class="unavailable">Custom alerts</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline w-100">Get Started</a>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="pricing-card popular">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="pricing-icon"><i class="fas fa-rocket"></i></div>
+                        <h3 class="mb-4">Professional</h3>
+                        <div class="price mb-4">$49<span>/month</span></div>
+                        <ul class="list-unstyled feature-list">
+                            <li>Advanced AI market analysis</li>
+                            <li>Portfolio optimization</li>
+                            <li>Real-time market insights</li>
+                            <li>Advanced risk analysis</li>
+                            <li class="unavailable">Tax optimization</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary w-100">Get Started</a>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="pricing-card">
+                        <div class="pricing-icon"><i class="fas fa-gem"></i></div>
+                        <h3 class="mb-4">Enterprise</h3>
+                        <div class="price mb-4">$99<span>/month</span></div>
+                        <ul class="list-unstyled feature-list">
+                            <li>Premium AI market analysis</li>
+                            <li>Advanced portfolio optimization</li>
+                            <li>Real-time market insights</li>
+                            <li>Advanced risk analysis</li>
+                            <li>Tax optimization</li>
+                        </ul>
+                        <a href="#" class="btn btn-outline w-100">Get Started</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h4 class="text-white mb-4">InvestAI</h4>
+                    <p>Empowering investors with AI-driven insights for smarter financial decisions.</p>
+                    <div class="mt-4">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://x.com/gargsaahab?t=W1wAm9Bc9wTTlNUp2F2gDg&s=08" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/_investai_?igsh=MW0xcmpyMjJudTdkNw==" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h5 class="text-white mb-4">Company</h5>
+                    <div class="footer-links">
+                        <a href="#">About Us</a>
+                        <a href="#">Careers</a>
+                        <a href="#">Press</a>
+                        <a href="#">Blog</a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h5 class="text-white mb-4">Resources</h5>
+                    <div class="footer-links">
+                        <a href="#">Help Center</a>
+                        <a href="#">Documentation</a>
+                        <a href="#">API</a>
+                        <a href="#">Status</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <h5 class="text-white mb-4">Subscribe to our newsletter</h5>
+                    <p>Get the latest news and updates about our product.</p>
+                    <div class="mt-4">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Your email">
+                            <button class="btn btn-primary">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 bg-light opacity-25">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">© 2025 InvestAI. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="text-white-50 me-3">Privacy Policy</a>
+                    <a href="#" class="text-white-50">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+
+        <!-- Gmail API Integration Script -->
+        <script>
+            // Client ID and API key from the Google API Console
+            const CLIENT_ID = 'YOUR_CLIENT_ID'; // Replace with your Google API Client ID
+            const API_KEY = 'AIzaSyCue8WH3C4Y75C8zaP0A81BS17V8hcSpeI'; // Replace with your Google API Key
+            
+            // Array of API discovery doc URLs for APIs used by the quickstart
+            const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'];
+            
+            // Authorization scopes required by the API
+            const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
+            
+            let tokenClient;
+            let gapiInited = false;
+            let gisInited = false;
+            
+            // Initialize the API client library
+            function gapiLoaded() {
+                gapi.load('client', initializeGapiClient);
+            }
+            
+            async function initializeGapiClient() {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: DISCOVERY_DOCS,
+                });
+                gapiInited = true;
+                maybeEnableButtons();
+            }
+            
+            function gisLoaded() {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: '', // defined later
+                });
+                gisInited = true;
+                maybeEnableButtons();
+            }
+            
+            function maybeEnableButtons() {
+                if (gapiInited && gisInited) {
+                    document.getElementById('authorize_button').style.display = 'inline-block';
+                }
+            }
+            
+            // Handle the sign-in flow
+            function handleAuthClick() {
+                tokenClient.callback = async (resp) => {
+                    if (resp.error !== undefined) {
+                        throw resp;
+                    }
+                    document.getElementById('authorize_button').classList.add('d-none');
+                    document.getElementById('signout_button').classList.remove('d-none');
+                    document.getElementById('gmail-loading').style.display = 'block';
+                    await listMessages();
+                };
+                
+                if (gapi.client.getToken() === null) {
+                    tokenClient.requestAccessToken({prompt: 'consent'});
+                } else {
+                    tokenClient.requestAccessToken({prompt: ''});
+                }
+            }
+            
+            // Handle sign-out
+            function handleSignoutClick() {
+                const token = gapi.client.getToken();
+                if (token !== null) {
+                    google.accounts.oauth2.revoke(token.access_token);
+                    gapi.client.setToken('');
+                    document.getElementById('gmail-content').classList.add('d-none');
+                    document.getElementById('authorize_button').classList.remove('d-none');
+                    document.getElementById('signout_button').classList.add('d-none');
+                    document.getElementById('email-list').innerHTML = '';
+                }
+            }
+            
+            // List messages in the user's inbox
+            async function listMessages() {
+                try {
+                    const response = await gapi.client.gmail.users.messages.list({
+                        'userId': 'me',
+                        'maxResults': 10,
+                        'labelIds': ['INBOX']
+                    });
+                    
+                    const messages = response.result.messages;
+                    if (messages && messages.length > 0) {
+                        const emailList = document.getElementById('email-list');
+                        emailList.innerHTML = '';
+                        
+                        for (const message of messages) {
+                            await getMessageDetails(message.id, emailList);
+                        }
+                        
+                        document.getElementById('gmail-loading').style.display = 'none';
+                        document.getElementById('gmail-content').classList.remove('d-none');
+                    } else {
+                        document.getElementById('gmail-loading').style.display = 'none';
+                        document.getElementById('gmail-content').classList.remove('d-none');
+                        document.getElementById('email-list').innerHTML = '<p class="text-center py-4">No emails found.</p>';
+                    }
+                } catch (err) {
+                    console.error('Error fetching messages:', err);
+                    document.getElementById('gmail-loading').style.display = 'none';
+                    document.getElementById('email-list').innerHTML = '<p class="text-center py-4 text-danger">Error loading emails. Please try again.</p>';
+                }
+            }
+            
+            // Get details of a specific message
+            async function getMessageDetails(messageId, container) {
+                try {
+                    const response = await gapi.client.gmail.users.messages.get({
+                        'userId': 'me',
+                        'id': messageId
+                    });
+                    
+                    const message = response.result;
+                    const headers = message.payload.headers;
+                    
+                    let subject = '';
+                    let from = '';
+                    
+                    // Extract subject and sender from headers
+                    for (const header of headers) {
+                        if (header.name === 'Subject') {
+                            subject = header.value;
+                        } else if (header.name === 'From') {
+                            from = header.value;
+                        }
+                    }
+                    
+                    // Create email item element
+                    const emailItem = document.createElement('div');
+                    emailItem.className = 'email-item';
+                    emailItem.innerHTML = `
+                        <div class="email-subject">${subject || '(No subject)'}</div>
+                        <div class="email-sender">${from}</div>
+                        <div class="email-snippet">${message.snippet}</div>
+                    `;
+                    
+                    // Add click event to show email details
+                    emailItem.addEventListener('click', () => {
+                        alert(`Email: ${subject}\nFrom: ${from}\n\n${message.snippet}`);
+                    });
+                    
+                    container.appendChild(emailItem);
+                } catch (err) {
+                    console.error('Error fetching message details:', err);
+                }
+            }
+            
+            // Compose new email
+            function composeEmail() {
+                const recipient = prompt('Enter recipient email:');
+                if (!recipient) return;
+                
+                const subject = prompt('Enter email subject:');
+                if (!subject) return;
+                
+                const body = prompt('Enter email body:');
+                if (!body) return;
+                
+                sendEmail(recipient, subject, body);
+            }
+            
+            // Send email function
+            async function sendEmail(to, subject, body) {
+                try {
+                    // Create the email content
+                    const emailContent = [
+                        'Content-Type: text/plain; charset="UTF-8"\n',
+                        'MIME-Version: 1.0\n',
+                        'Content-Transfer-Encoding: 7bit\n',
+                        'to: ', to, '\n',
+                        'subject: ', subject, '\n\n',
+                        body
+                    ].join('');
+                    
+                    // Encode the email
+                    const encodedEmail = btoa(emailContent).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                    
+                    // Send the email
+                    await gapi.client.gmail.users.messages.send({
+                        'userId': 'me',
+                        'resource': {
+                            'raw': encodedEmail
+                        }
+                    });
+                    
+                    alert('Email sent successfully!');
+                } catch (err) {
+                    console.error('Error sending email:', err);
+                    alert('Failed to send email. Please try again.');
+                }
+            }
+        // Initialize AOS
+        AOS.init({duration: 800, once: true});
+        
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled');
+            } else {
+                navbar.classList.remove('navbar-scrolled');
+            }
+        });
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('authorize_button').addEventListener('click', handleAuthClick);
+            document.getElementById('signout_button').addEventListener('click', handleSignoutClick);
+            document.getElementById('compose-button').addEventListener('click', composeEmail);
+            
+            // Load the Google API client and auth libraries
+            gapiLoaded();
+            gisLoaded();
+        });
+
+    </script>
+</body>
+</html>
